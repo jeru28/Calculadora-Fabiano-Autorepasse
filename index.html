@@ -36,6 +36,11 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html,
+        body {
+            scroll-behavior: smooth;
+        }
+
         .bg-honeycomb {
             background:
                 radial-gradient(circle at 15% 0%, rgba(255, 255, 255, 0.06), transparent 22%),
@@ -144,9 +149,19 @@
             text-transform: uppercase;
         }
 
+        .keyboard-target {
+            scroll-margin-top: 20px;
+            scroll-margin-bottom: 140px;
+        }
+
         @media (max-width: 420px) {
             body {
                 font-size: 16px;
+            }
+
+            .mobile-safe {
+                padding-top: max(12px, env(safe-area-inset-top));
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
             }
 
             .mobile-grid {
@@ -185,7 +200,7 @@
 </head>
 <body class="bg-honeycomb min-h-screen flex flex-col">
 
-    <div class="max-w-md mx-auto w-full flex flex-col min-h-screen p-3 sm:p-4">
+    <div class="mobile-safe max-w-md mx-auto w-full flex flex-col min-h-screen p-3 sm:p-4">
         
         <!-- HEADER -->
         <header class="text-center mb-4 shrink-0">
@@ -197,10 +212,10 @@
                     class="uppercase-force w-full bg-transparent border-b border-white/10 text-slate-50 placeholder:text-slate-500 text-sm font-black outline-none pb-2 text-center uppercase">
                 
                 <div class="grid grid-cols-2 gap-2 mobile-stack">
-                    <input type="text" id="carYear" placeholder="Ano" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
-                    <input type="text" id="carColor" placeholder="Cor" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
-                    <input type="text" id="carPlate" placeholder="Placa" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center uppercase outline-none">
-                    <input type="text" id="carOrigin" placeholder="Origem" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
+                    <input type="text" id="carYear" placeholder="Ano" class="keyboard-target uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
+                    <input type="text" id="carColor" placeholder="Cor" class="keyboard-target uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
+                    <input type="text" id="carPlate" placeholder="Placa" class="keyboard-target uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center uppercase outline-none">
+                    <input type="text" id="carOrigin" placeholder="Origem" class="keyboard-target uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
                 </div>
 
                 <div class="flex items-center gap-3 px-1 pt-1">
@@ -237,15 +252,15 @@
                     <div class="grid grid-cols-3 gap-2 mobile-stack col-span-2">
                         <div class="space-y-1">
                             <label class="subtle-label text-[10px] font-black uppercase block mb-1">Dias de Pátio</label>
-                            <input type="number" id="patioDays" min="0" value="15" class="input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
+                            <input type="number" id="patioDays" min="0" value="15" class="keyboard-target input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
                         </div>
                         <div class="space-y-1">
                             <label class="subtle-label text-[10px] font-black uppercase block mb-1">Capital % a.m.</label>
-                            <input type="number" id="oppRate" value="1.0" class="input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
+                            <input type="number" id="oppRate" value="1.0" class="keyboard-target input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
                         </div>
                         <div class="space-y-1">
                             <label class="subtle-label text-[10px] font-black uppercase block mb-1">Imposto %</label>
-                            <input type="number" id="taxRate" value="15.0" class="input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
+                            <input type="number" id="taxRate" value="15.0" class="keyboard-target input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
                         </div>
                     </div>
                 </div>
@@ -614,6 +629,21 @@ _Gerado por Fabiano Auto Repasse_
         ['carModel', 'carYear', 'carColor', 'carPlate', 'carOrigin'].forEach((id) => {
             document.getElementById(id).addEventListener('input', (event) => {
                 event.target.value = event.target.value.toUpperCase();
+            });
+        });
+
+        const mobileKeyboardTargets = [
+            'carModel', 'carYear', 'carColor', 'carPlate', 'carOrigin',
+            'carPrice', 'freight', 'patioDays', 'oppRate', 'taxRate', 'targetValue'
+        ];
+
+        mobileKeyboardTargets.forEach((id) => {
+            const element = document.getElementById(id);
+            element.addEventListener('focus', () => {
+                if (window.innerWidth > 420) return;
+                window.setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 180);
             });
         });
 
