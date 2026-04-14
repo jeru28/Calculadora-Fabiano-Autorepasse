@@ -36,11 +36,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html,
-        body {
-            scroll-behavior: smooth;
-        }
-
         .bg-honeycomb {
             background:
                 radial-gradient(circle at 15% 0%, rgba(255, 255, 255, 0.06), transparent 22%),
@@ -149,21 +144,7 @@
             text-transform: uppercase;
         }
 
-        .keyboard-target {
-            scroll-margin-top: 20px;
-            scroll-margin-bottom: 140px;
-        }
-
         @media (max-width: 420px) {
-            body {
-                font-size: 16px;
-            }
-
-            .mobile-safe {
-                padding-top: max(12px, env(safe-area-inset-top));
-                padding-bottom: max(16px, env(safe-area-inset-bottom));
-            }
-
             .mobile-grid {
                 grid-template-columns: 1fr;
             }
@@ -171,36 +152,12 @@
             .mobile-stack {
                 grid-template-columns: 1fr;
             }
-
-            input,
-            select,
-            textarea,
-            button {
-                font-size: 16px !important;
-            }
-
-            #carModel {
-                font-size: 16px !important;
-            }
-
-            #carYear,
-            #carColor,
-            #carPlate,
-            #carOrigin,
-            #carPrice,
-            #freight,
-            #patioDays,
-            #oppRate,
-            #taxRate,
-            #targetValue {
-                font-size: 16px !important;
-            }
         }
     </style>
 </head>
 <body class="bg-honeycomb min-h-screen flex flex-col">
 
-    <div class="mobile-safe max-w-md mx-auto w-full flex flex-col min-h-screen p-3 sm:p-4">
+    <div class="max-w-md mx-auto w-full flex flex-col min-h-screen p-3 sm:p-4">
         
         <!-- HEADER -->
         <header class="text-center mb-4 shrink-0">
@@ -212,10 +169,10 @@
                     class="uppercase-force w-full bg-transparent border-b border-white/10 text-slate-50 placeholder:text-slate-500 text-sm font-black outline-none pb-2 text-center uppercase">
                 
                 <div class="grid grid-cols-2 gap-2 mobile-stack">
-                    <input type="text" id="carYear" placeholder="Ano" class="keyboard-target uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
-                    <input type="text" id="carColor" placeholder="Cor" class="keyboard-target uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
-                    <input type="text" id="carPlate" placeholder="Placa" class="keyboard-target uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center uppercase outline-none">
-                    <input type="text" id="carOrigin" placeholder="Origem" class="keyboard-target uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
+                    <input type="text" id="carYear" placeholder="Ano" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
+                    <input type="text" id="carColor" placeholder="Cor" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
+                    <input type="text" id="carPlate" placeholder="Placa" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center uppercase outline-none">
+                    <input type="text" id="carOrigin" placeholder="Origem" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
                 </div>
 
                 <div class="flex items-center gap-3 px-1 pt-1">
@@ -252,15 +209,15 @@
                     <div class="grid grid-cols-3 gap-2 mobile-stack col-span-2">
                         <div class="space-y-1">
                             <label class="subtle-label text-[10px] font-black uppercase block mb-1">Dias de Pátio</label>
-                            <input type="number" id="patioDays" min="0" value="15" class="keyboard-target input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
+                            <input type="number" id="patioDays" min="0" value="15" class="input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
                         </div>
                         <div class="space-y-1">
                             <label class="subtle-label text-[10px] font-black uppercase block mb-1">Capital % a.m.</label>
-                            <input type="number" id="oppRate" value="1.0" class="keyboard-target input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
+                            <input type="number" id="oppRate" value="1.0" class="input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
                         </div>
                         <div class="space-y-1">
                             <label class="subtle-label text-[10px] font-black uppercase block mb-1">Imposto %</label>
-                            <input type="number" id="taxRate" value="15.0" class="keyboard-target input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
+                            <input type="number" id="taxRate" value="15.0" class="input-shell w-full rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none text-center">
                         </div>
                     </div>
                 </div>
@@ -279,10 +236,16 @@
             <div id="resultCard" class="soft-card rounded-[1.6rem] p-5 relative overflow-hidden">
                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.09),transparent_26%)] pointer-events-none"></div>
                 <div class="flex justify-between items-start gap-3 mb-3">
-                    <div class="relative z-10">
-                        <p id="resultHeadlineLabel" class="text-[10px] font-black text-sky-200 uppercase tracking-[0.12em] mb-1">Lucro Estimado</p>
-                        <h2 id="resultHeadlineValue" class="text-[2rem] font-black text-white leading-none tracking-tight">R$ 0,00</h2>
-                        <p id="resultSupportText" class="text-[11px] text-slate-400 font-semibold mt-2 hidden"></p>
+                    <div class="relative z-10 flex-1 space-y-2">
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.12em] mb-0.5">Lucro Bruto</p>
+                            <p id="resGrossProfit" class="text-[1.6rem] font-black text-white leading-none tracking-tight">R$ 0,00</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-sky-200 uppercase tracking-[0.12em] mb-0.5">Lucro Líquido</p>
+                            <p id="resNetProfit" class="text-[1.1rem] font-black text-emerald-300 leading-none tracking-tight">R$ 0,00</p>
+                        </div>
+                        <p id="resultSupportText" class="text-[11px] text-slate-400 font-semibold hidden"></p>
                     </div>
                     <div class="text-right relative z-10">
                         <p class="text-[10px] font-black text-slate-500 uppercase mb-1">ROI</p>
@@ -327,6 +290,16 @@
             <p class="text-center text-[9px] text-slate-600 mt-3 font-black tracking-[0.18em] uppercase">Fabiano Auto Repasse • Standalone v2.0</p>
         </footer>
     </div>
+
+    <div id="toast" style="
+        position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+        background: rgba(20, 25, 35, 0.96); border: 1px solid rgba(255,255,255,0.12);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.45); color: #f8fafc;
+        padding: 0.75rem 1.25rem; border-radius: 1rem; font-size: 0.8rem;
+        font-weight: 800; letter-spacing: 0.04em; opacity: 0;
+        transition: opacity 0.25s ease; pointer-events: none; z-index: 50;
+        white-space: nowrap;
+    "></div>
 
     <script>
         let currentMode = 'SALE'; // 'SALE' ou 'PROFIT'
@@ -412,24 +385,6 @@
             panel.innerHTML = lines.map((line) => `<div>${line}</div>`).join('');
         }
 
-        function updateResultHeadline(mode, salePrice, netProfit) {
-            const labelEl = document.getElementById('resultHeadlineLabel');
-            const valueEl = document.getElementById('resultHeadlineValue');
-            const supportEl = document.getElementById('resultSupportText');
-
-            if (mode === 'PROFIT') {
-                labelEl.innerText = 'Preço de Venda Necessário';
-                valueEl.innerText = formatBRL(salePrice);
-                supportEl.innerText = `Lucro líquido alvo: ${formatBRL(netProfit)}`;
-                supportEl.classList.remove('hidden');
-                return;
-            }
-
-            labelEl.innerText = 'Lucro Estimado';
-            valueEl.innerText = formatBRL(netProfit);
-            supportEl.innerText = `Venda considerada: ${formatBRL(salePrice)}`;
-            supportEl.classList.remove('hidden');
-        }
 
         function calculate() {
             const data = {};
@@ -520,7 +475,10 @@
 
             if (errors.length) {
                 renderStatus('error', errors);
-                updateResultHeadline(currentMode, 0, 0);
+                window.lastCalc = null;
+                document.getElementById('resGrossProfit').innerText = 'R$ 0,00';
+                document.getElementById('resNetProfit').innerText = 'R$ 0,00';
+                document.getElementById('resultSupportText').classList.add('hidden');
                 document.getElementById('resROI').innerText = '0,00%';
                 document.getElementById('resCarPrice').innerText = 'R$ 0,00';
                 document.getElementById('resFreight').innerText = 'R$ 0,00';
@@ -531,7 +489,15 @@
             }
 
             // Atualizar UI
-            updateResultHeadline(currentMode, salePrice, netProfit);
+            const grossProfit = salePrice - taxableBase;
+            document.getElementById('resGrossProfit').innerText = formatBRL(grossProfit);
+            document.getElementById('resNetProfit').innerText = formatBRL(netProfit);
+            const supportEl = document.getElementById('resultSupportText');
+            supportEl.innerText = currentMode === 'PROFIT'
+                ? `Venda necessária: ${formatBRL(salePrice)}`
+                : `Venda: ${formatBRL(salePrice)}`;
+            supportEl.classList.remove('hidden');
+
             document.getElementById('resROI').innerText = roi.toFixed(2).replace('.', ',') + '%';
             document.getElementById('resCarPrice').innerText = formatBRL(data.carPrice);
             document.getElementById('resFreight').innerText = formatBRL(data.freight);
@@ -541,7 +507,7 @@
 
             // Cores ROI
             const roiEl = document.getElementById('resROI');
-            roiEl.className = `text-xl font-black leading-none ${roi >= 10 ? 'text-emerald-400' : 'text-cyan-400'}`;
+            roiEl.className = `text-[1.7rem] font-black leading-none ${roi >= 10 ? 'text-emerald-400' : 'text-sky-200'}`;
 
             if (warnings.length) {
                 renderStatus('warning', warnings);
@@ -550,7 +516,7 @@
             }
 
             // Salvar para o relatório
-            window.lastCalc = { ...data, days, netProfit, salePrice, roi, totalCost, oppCost, taxAmount };
+            window.lastCalc = { ...data, days, grossProfit, netProfit, salePrice, roi, totalCost, oppCost, taxAmount };
         }
 
         function updateQuality() {
@@ -581,10 +547,18 @@
             calculate();
         }
 
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+        }
+
         function copyFullReport() {
             const c = window.lastCalc;
             if (!c) {
-                alert("Preencha os campos obrigatórios antes de copiar o relatório.");
+                showToast('Preencha os campos antes de copiar.');
                 return;
             }
             const text = `
@@ -607,6 +581,7 @@
 📅 *DIAS PÁTIO:* ${c.days}
 ---------------------------
 🏷️ *VENDA:* ${formatBRL(c.salePrice)}
+📊 *LUCRO BRUTO:* ${formatBRL(c.grossProfit)}
 💰 *LUCRO LÍQ.:* ${formatBRL(c.netProfit)}
 🚀 *ROI:* ${c.roi.toFixed(2).replace('.', ',')}%
 ---------------------------
@@ -614,7 +589,7 @@ _Gerado por Fabiano Auto Repasse_
             `.trim();
 
             navigator.clipboard.writeText(text).then(() => {
-                alert("Relatório completo copiado!");
+                showToast('Relatório copiado!');
             });
         }
 
@@ -629,21 +604,6 @@ _Gerado por Fabiano Auto Repasse_
         ['carModel', 'carYear', 'carColor', 'carPlate', 'carOrigin'].forEach((id) => {
             document.getElementById(id).addEventListener('input', (event) => {
                 event.target.value = event.target.value.toUpperCase();
-            });
-        });
-
-        const mobileKeyboardTargets = [
-            'carModel', 'carYear', 'carColor', 'carPlate', 'carOrigin',
-            'carPrice', 'freight', 'patioDays', 'oppRate', 'taxRate', 'targetValue'
-        ];
-
-        mobileKeyboardTargets.forEach((id) => {
-            const element = document.getElementById(id);
-            element.addEventListener('focus', () => {
-                if (window.innerWidth > 420) return;
-                window.setTimeout(() => {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 180);
             });
         });
 
