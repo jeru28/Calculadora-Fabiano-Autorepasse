@@ -176,9 +176,10 @@
                 
                 <div class="grid grid-cols-2 gap-2 mobile-stack">
                     <input type="text" id="carYear" placeholder="Ano" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
+                    <input type="text" id="carKM" placeholder="KM" inputmode="numeric" class="input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
                     <input type="text" id="carColor" placeholder="Cor" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
                     <input type="text" id="carPlate" placeholder="Placa" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center uppercase outline-none">
-                    <input type="text" id="carOrigin" placeholder="Origem" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none">
+                    <input type="text" id="carOrigin" placeholder="Origem" class="uppercase-force input-shell rounded-xl py-2.5 text-xs text-white text-center outline-none col-span-2">
                 </div>
 
                 <div class="flex items-center gap-3 px-1 pt-1">
@@ -211,7 +212,14 @@
                             <input type="text" id="freight" inputmode="numeric" autocomplete="off" class="w-full bg-transparent rounded-xl py-2.5 px-3 text-sm font-bold text-white outline-none">
                         </div>
                     </div>
-                    
+
+                    <div class="space-y-1 col-span-2">
+                        <label class="subtle-label text-[10px] font-black uppercase">Preço FIPE <span class="text-slate-600 font-semibold normal-case tracking-normal">(opcional)</span></label>
+                        <div class="input-shell relative rounded-xl">
+                            <input type="text" id="carFipe" inputmode="numeric" autocomplete="off" placeholder="Se souber, informe a referência FIPE" class="w-full bg-transparent rounded-xl py-2.5 px-3 text-sm font-bold text-white placeholder:text-slate-600 outline-none">
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-3 gap-2 mobile-stack col-span-2">
                         <div class="space-y-1">
                             <label class="subtle-label text-[10px] font-black uppercase block mb-1">Dias de Pátio</label>
@@ -283,10 +291,27 @@
                         <p id="resTaxAmount" class="text-xs text-slate-300 font-black">R$ 0,00</p>
                     </div>
                 </div>
+                <!-- Comparativo FIPE — visível apenas quando o campo FIPE é preenchido -->
+                <div id="resFipeSection" class="hidden grid grid-cols-2 gap-2 pt-2 relative z-10">
+                    <div class="metric-card p-3 rounded-2xl text-center">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Compra vs FIPE</p>
+                        <p id="resFipeCompra" class="text-xs font-black text-slate-300">--</p>
+                    </div>
+                    <div class="metric-card p-3 rounded-2xl text-center">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Venda vs FIPE</p>
+                        <p id="resFipeVenda" class="text-xs font-black text-slate-300">--</p>
+                    </div>
+                </div>
                 <div class="pt-2 relative z-10">
                     <div class="rounded-[1.15rem] border border-sky-300/12 bg-white/7 px-4 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
                         <p class="text-[9px] font-bold text-sky-200 uppercase tracking-[0.12em] mb-1">Custo Total</p>
                         <p id="resTotalCost" class="text-[1.1rem] text-white font-black leading-none">R$ 0,00</p>
+                    </div>
+                </div>
+                <div class="pt-2 relative z-10">
+                    <div class="rounded-[1.15rem] border border-amber-300/12 bg-amber-500/5 px-4 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                        <p class="text-[9px] font-bold text-amber-300/70 uppercase tracking-[0.12em] mb-1">Preço Mínimo de Venda</p>
+                        <p id="resMinPrice" class="text-[1.1rem] text-amber-100 font-black leading-none">R$ 0,00</p>
                     </div>
                 </div>
             </div>
@@ -316,8 +341,8 @@
         let currentMode = 'SALE'; // 'SALE' ou 'PROFIT'
 
         const inputs = [
-            'carModel', 'carYear', 'carColor', 'carPlate', 'carOrigin', 'quality',
-            'carPrice', 'freight', 'patioDays', 'oppRate', 'taxRate', 'targetValue'
+            'carModel', 'carYear', 'carColor', 'carPlate', 'carOrigin', 'carKM', 'quality',
+            'carPrice', 'freight', 'carFipe', 'patioDays', 'oppRate', 'taxRate', 'targetValue'
         ];
 
         function formatBRL(val) {
@@ -402,7 +427,7 @@
             resetFieldErrors();
             inputs.forEach(id => {
                 const el = document.getElementById(id);
-                if (['carPrice', 'freight', 'targetValue'].includes(id)) {
+                if (['carPrice', 'freight', 'carFipe', 'targetValue'].includes(id)) {
                     data[id] = getCurrencyValue(id);
                 } else {
                     data[id] = el.type === 'number' || el.type === 'range' ? parseFloat(el.value) || 0 : el.value;
@@ -454,6 +479,10 @@
             const oppCost = taxableBase * dailyRate * days;
             const preTaxCost = taxableBase + oppCost;
 
+            // Preço mínimo de venda (ponto de equilíbrio — lucro líquido = 0)
+            const taxFactor = 1 - (data.taxRate / 100);
+            const minPrice = taxFactor > 0 ? taxableBase + oppCost / taxFactor : taxableBase + oppCost;
+
             let salePrice, netProfit, roi, taxAmount = 0, totalCost = preTaxCost;
 
             if (!errors.length && currentMode === 'SALE') {
@@ -498,6 +527,8 @@
                 document.getElementById('resTotalCost').innerText = 'R$ 0,00';
                 document.getElementById('resOppCost').innerText = 'R$ 0,00';
                 document.getElementById('resTaxAmount').innerText = 'R$ 0,00';
+                document.getElementById('resMinPrice').innerText = 'R$ 0,00';
+                document.getElementById('resFipeSection').classList.add('hidden');
                 return;
             }
 
@@ -529,9 +560,34 @@
             document.getElementById('resOppCost').innerText = formatBRL(oppCost);
             document.getElementById('resTaxAmount').innerText = formatBRL(taxAmount);
 
+            // Preço mínimo de venda
+            document.getElementById('resMinPrice').innerText = formatBRL(minPrice);
+
             // Cores ROI
             const roiEl = document.getElementById('resROI');
             roiEl.className = `text-[1.7rem] font-black leading-none ${roi >= 10 ? 'text-emerald-400' : 'text-sky-200'}`;
+
+            // Comparativo FIPE
+            const fipePrice = data.carFipe;
+            const fipeSection = document.getElementById('resFipeSection');
+            let fipeCompra = null, fipeVenda = null;
+            if (fipePrice > 0) {
+                fipeCompra = ((data.carPrice - fipePrice) / fipePrice) * 100;
+                fipeVenda  = ((salePrice - fipePrice) / fipePrice) * 100;
+                fipeSection.classList.remove('hidden');
+
+                const fmt = (pct) => (pct >= 0 ? '+' : '') + pct.toFixed(1).replace('.', ',') + '% da FIPE';
+
+                const compraEl = document.getElementById('resFipeCompra');
+                compraEl.innerText = fmt(fipeCompra);
+                compraEl.className = `text-xs font-black ${fipeCompra <= 0 ? 'text-emerald-400' : 'text-red-400'}`;
+
+                const vendaEl = document.getElementById('resFipeVenda');
+                vendaEl.innerText = fmt(fipeVenda);
+                vendaEl.className = `text-xs font-black ${fipeVenda >= 0 ? 'text-emerald-400' : 'text-amber-400'}`;
+            } else {
+                fipeSection.classList.add('hidden');
+            }
 
             if (warnings.length) {
                 renderStatus('warning', warnings);
@@ -540,7 +596,7 @@
             }
 
             // Salvar para o relatório
-            window.lastCalc = { ...data, days, grossProfit, netProfit, salePrice, roi, totalCost, oppCost, taxAmount };
+            window.lastCalc = { ...data, days, grossProfit, netProfit, salePrice, roi, totalCost, oppCost, taxAmount, minPrice, fipeCompra, fipeVenda };
         }
 
         function updateQuality() {
@@ -585,17 +641,23 @@
                 showToast('Preencha os campos antes de copiar.');
                 return;
             }
+            const kmLine      = c.carKM  ? `\n🛣️ *KM:* ${c.carKM}` : '';
+            const fipeLine    = c.carFipe > 0 ? `\n📊 *FIPE:* ${formatBRL(c.carFipe)}` : '';
+            const fipeVdLine  = c.fipeVenda !== null
+                ? `\n📊 *VENDA vs FIPE:* ${c.fipeVenda >= 0 ? '+' : ''}${c.fipeVenda.toFixed(1).replace('.', ',')}%`
+                : '';
+
             const text = `
 💎 *FABIANO AUTO REPASSE*
 ---------------------------
 🚗 *VEÍCULO:* ${c.carModel || 'NÃO INFORMADO'}
-📅 *ANO:* ${c.carYear || '-'}
+📅 *ANO:* ${c.carYear || '-'}${kmLine}
 🎨 *COR:* ${c.carColor || '-'}
 🔤 *PLACA:* ${c.carPlate || '-'}
 📍 *ORIGEM:* ${c.carOrigin || '-'}
 ⭐ *NOTA:* ${c.quality}/5
 ---------------------------
-💰 *PREÇO COMPRA:* ${formatBRL(c.carPrice)}
+💰 *PREÇO COMPRA:* ${formatBRL(c.carPrice)}${fipeLine}
 📦 *GASTOS EXTRAS:* ${formatBRL(c.freight)}
 🏦 *CUSTO CAPITAL:* ${formatBRL(c.oppCost || 0)}
 🧾 *IMPOSTO:* ${formatBRL(c.taxAmount || 0)}
@@ -605,6 +667,7 @@
 📅 *DIAS PÁTIO:* ${c.days}
 ---------------------------
 🏷️ *VENDA:* ${formatBRL(c.salePrice)}
+🔽 *PREÇO MÍNIMO:* ${formatBRL(c.minPrice)}${fipeVdLine}
 📊 *LUCRO BRUTO:* ${formatBRL(c.grossProfit)}
 💰 *LUCRO LÍQ.:* ${formatBRL(c.netProfit)}
 🚀 *ROI:* ${c.roi.toFixed(2).replace('.', ',')}%
@@ -619,7 +682,7 @@ _Gerado por Fabiano Auto Repasse_
 
         // Event Listeners
         inputs.forEach(id => {
-            if (['carPrice', 'freight', 'targetValue'].includes(id)) {
+            if (['carPrice', 'freight', 'carFipe', 'targetValue'].includes(id)) {
                 return;
             }
             document.getElementById(id).addEventListener('input', id === 'quality' ? updateQuality : calculate);
@@ -633,10 +696,12 @@ _Gerado por Fabiano Auto Repasse_
 
         attachCurrencyMask('carPrice');
         attachCurrencyMask('freight');
+        attachCurrencyMask('carFipe');
         attachCurrencyMask('targetValue');
 
         setCurrencyValue('carPrice', 0);
         setCurrencyValue('freight', 0);
+        setCurrencyValue('carFipe', 0);
         setCurrencyValue('targetValue', 0);
 
         document.getElementById('modeSale').addEventListener('click', () => setMode('SALE'));
