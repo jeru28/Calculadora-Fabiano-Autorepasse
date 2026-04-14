@@ -243,6 +243,11 @@
                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.09),transparent_26%)] pointer-events-none"></div>
                 <div class="flex justify-between items-start gap-3 mb-3">
                     <div class="relative z-10 flex-1 space-y-2">
+                        <!-- Hero: Preço de Venda — visível apenas no modo PROFIT -->
+                        <div id="heroPriceSection" class="hidden">
+                            <p class="text-[10px] font-black text-sky-200 uppercase tracking-[0.12em] mb-0.5">Preço de Venda Necessário</p>
+                            <p id="resHeroSalePrice" class="text-[2rem] font-black text-white leading-none tracking-tight">R$ 0,00</p>
+                        </div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.12em] mb-0.5">Lucro Bruto</p>
                             <p id="resGrossProfit" class="text-[1.6rem] font-black text-white leading-none tracking-tight">R$ 0,00</p>
@@ -482,6 +487,8 @@
             if (errors.length) {
                 renderStatus('error', errors);
                 window.lastCalc = null;
+                document.getElementById('heroPriceSection').classList.add('hidden');
+                document.getElementById('resHeroSalePrice').innerText = 'R$ 0,00';
                 document.getElementById('resGrossProfit').innerText = 'R$ 0,00';
                 document.getElementById('resNetProfit').innerText = 'R$ 0,00';
                 document.getElementById('resultSupportText').classList.add('hidden');
@@ -496,13 +503,24 @@
 
             // Atualizar UI
             const grossProfit = salePrice - taxableBase;
-            document.getElementById('resGrossProfit').innerText = formatBRL(grossProfit);
-            document.getElementById('resNetProfit').innerText = formatBRL(netProfit);
+            const heroPriceSection = document.getElementById('heroPriceSection');
+            const grossProfitEl = document.getElementById('resGrossProfit');
             const supportEl = document.getElementById('resultSupportText');
-            supportEl.innerText = currentMode === 'PROFIT'
-                ? `Venda necessária: ${formatBRL(salePrice)}`
-                : `Venda: ${formatBRL(salePrice)}`;
-            supportEl.classList.remove('hidden');
+
+            grossProfitEl.innerText = formatBRL(grossProfit);
+            document.getElementById('resNetProfit').innerText = formatBRL(netProfit);
+
+            if (currentMode === 'PROFIT') {
+                heroPriceSection.classList.remove('hidden');
+                document.getElementById('resHeroSalePrice').innerText = formatBRL(salePrice);
+                grossProfitEl.className = 'text-[1.1rem] font-black text-slate-300 leading-none tracking-tight';
+                supportEl.classList.add('hidden');
+            } else {
+                heroPriceSection.classList.add('hidden');
+                grossProfitEl.className = 'text-[1.6rem] font-black text-white leading-none tracking-tight';
+                supportEl.innerText = `Venda: ${formatBRL(salePrice)}`;
+                supportEl.classList.remove('hidden');
+            }
 
             document.getElementById('resROI').innerText = roi.toFixed(2).replace('.', ',') + '%';
             document.getElementById('resCarPrice').innerText = formatBRL(data.carPrice);
